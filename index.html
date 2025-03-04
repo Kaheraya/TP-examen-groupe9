@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morpion</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #grille {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+        .case {
+            width: 100px;
+            height: 100px;
+            background-color: #e4cfd5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jeu de Morpion</h1>
+    <div id="grille"></div>
+    <div id="message"></div>
+    <button onclick="reinitialiser()">Recommencer</button>
+    <script>
+        const grilleElement = document.getElementById('grille');
+        const messageElement = document.getElementById('message');
+        let grille = Array(3).fill(null).map(() => Array(3).fill(null));
+        let joueurActuel = 'X';
+        let joueur1 = 'Joueur 1';
+        let joueur2 = 'Joueur 2';
+
+        function creerGrille() {
+            grilleElement.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const caseElement = document.createElement('div');
+                    caseElement.classList.add('case');
+                    caseElement.addEventListener('click', () => jouer(i, j));
+                    grilleElement.appendChild(caseElement);
+                }
+            }
+        }
+
+        function jouer(i, j) {
+            if (grille[i][j] || verifierGagnant()) return;
+            grille[i][j] = joueurActuel;
+            mettreAJourGrille();
+            if (verifierGagnant()) {
+                messageElement.textContent = `Joueur ${joueurActuel} a gagné !`;
+                enregistrerPartie(joueur1, joueur2, joueurActuel);
+            } else if (grille.flat().every(cell => cell)) {
+                messageElement.textContent = "Match nul !";
+            }
+            joueurActuel = joueurActuel === 'X' ? 'O' : 'X';
+        }
+
+        function mettreAJourGrille() {
+            const cases = document.querySelectorAll('.case');
+            cases.forEach((caseElement, index) => {
+                const i = Math.floor(index / 3);
+                const j = index % 3;
+                caseElement.textContent = grille[i][j];
+            });
+        }
+
+        function verifierGagnant() {
+            const combinaisonsGagnantes = [
+                [[0, 0], [0, 1], [0, 2]],
+                [[1, 0], [1, 1], [1, 2]],
+                [[2, 0], [2, 1], [2, 2]],
+                [[0, 0], [1, 0], [2, 0]],
+                [[0, 1], [1, 1], [2, 1]],
+                [[0, 2], [1, 2], [2, 2]],
+                [[0, 0], [1, 1], [2, 2]],
+                [[0, 2], [1, 1], [2, 0]],
+            ];
+            return combinaisonsGagnantes.some(combinaison =>
+                combinaison.every(([i, j]) => grille[i][j] === joueurActuel)
+            );
+        }
+
+        function enregistrerPartie(joueur1, joueur2, gagnant) {
+            fetch('http://localhost:3000/partie', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ joueur1, joueur2, gagnant }),
+            })
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch((error) => console.error('Erreur:', error));
+        }
+
+        function reinitialiser() {
+            grille = Array(3).fill(null).map(() => Array(3).fill(null));
+            joueurActuel = 'X';
+            mettreAJourGrille();
+            messageElement.textContent = '';
+        }
+
+        creerGrille();
+    </script>
+</body>
+</html>
+
+
