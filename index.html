@@ -2,18 +2,19 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morpion</title>
-    <link rel="stylesheet" href="index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Morpion - Jeu en ligne</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
             display: flex;
-            
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 99vh;
+            height: 100vh;
             margin: 0;
         }
         #grille {
@@ -25,112 +26,147 @@
         .case {
             width: 100px;
             height: 100px;
-            background-color:blue;
+            background-color: #007bff;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
             cursor: pointer;
+            border-radius: 5px;
+        }
+        .case:hover {
+            background-color: #0056b3;
         }
         #message {
             margin-top: 20px;
             font-size: 1.5rem;
-            color: rgb(255, 255, 255);
+            color: #333;
         }
     </style>
 </head>
 <body>
-    <h1>Jeu de Morpion</h1>
-    <div id="grille"></div>
-    <div id="message"></div>
-    <button onclick="reinitialiser()">Recommencer</button>
-    <script>
-        const grilleElement = document.getElementById('grille');
-        const messageElement = document.getElementById('message');
-        let grille = Array(3).fill(null).map(() => Array(3).fill(null));
-        let joueurActuel = 'X';
-        let joueur1 = 'Joueur 1';
-        let joueur2 = 'Joueur 2';
 
-        function creerGrille() {
-            grilleElement.innerHTML = '';
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    const caseElement = document.createElement('div');
-                    caseElement.classList.add('case');
-                    caseElement.addEventListener('click', () => jouer(i, j));
-                    grilleElement.appendChild(caseElement);
-                }
+<!-- Barre de navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">Morpion Game</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="apropos.html">À propos</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!-- Contenu principal -->
+<div class="container text-center mt-4">
+    <h1 class="mb-4">Jeu de Morpion</h1>
+    <div id="grille" class="mb-3"></div>
+    <div id="message" class="fw-bold"></div>
+    <button class="btn btn-primary mt-3" onclick="reinitialiser()">Recommencer</button>
+</div>
+
+<!-- Pied de page -->
+<footer class="bg-dark text-white text-center py-3 mt-4 w-100">
+    <p>&copy; 2025. Voici les devs de ce jeu</p>
+    <a href="footer.html" class="text-white">Les créateurs de ce jeu</a>
+</footer>
+
+<!-- Script du jeu -->
+<script>
+    const grilleElement = document.getElementById('grille');
+    const messageElement = document.getElementById('message');
+    let grille = Array(3).fill(null).map(() => Array(3).fill(null));
+    let joueurActuel = 'X';
+    let joueur1 = 'Joueur 1';
+    let joueur2 = 'Joueur 2';
+
+    function creerGrille() {
+        grilleElement.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const caseElement = document.createElement('div');
+                caseElement.classList.add('case');
+                caseElement.addEventListener('click', () => jouer(i, j));
+                grilleElement.appendChild(caseElement);
             }
         }
+    }
 
-        function jouer(i, j) {
-            if (grille[i][j] || verifierGagnant()) return;
-            grille[i][j] = joueurActuel;
-            mettreAJourGrille();
-            if (verifierGagnant()) {
-                messageElement.textContent = `Joueur ${joueurActuel} a gagné !`;
-                enregistrerPartie(joueur1, joueur2, joueurActuel);
-            } else if (grille.flat().every(cell => cell)) {
-                messageElement.textContent = "Match nul !";
-            }
-            joueurActuel = joueurActuel === 'X' ? 'O' : 'X';
+    function jouer(i, j) {
+        if (grille[i][j] || verifierGagnant()) return;
+        grille[i][j] = joueurActuel;
+        mettreAJourGrille();
+        if (verifierGagnant()) {
+            messageElement.textContent = `Joueur ${joueurActuel} a gagné !`;
+            enregistrerPartie(joueur1, joueur2, joueurActuel);
+        } else if (grille.flat().every(cell => cell)) {
+            messageElement.textContent = "Match nul !";
         }
+        joueurActuel = joueurActuel === 'X' ? 'O' : 'X';
+    }
 
-        function mettreAJourGrille() {
-            const cases = document.querySelectorAll('.case');
-            cases.forEach((caseElement, index) => {
-                const i = Math.floor(index / 3);
-                const j = index % 3;
-                caseElement.textContent = grille[i][j];
-            });
-        }
+    function mettreAJourGrille() {
+        const cases = document.querySelectorAll('.case');
+        cases.forEach((caseElement, index) => {
+            const i = Math.floor(index / 3);
+            const j = index % 3;
+            caseElement.textContent = grille[i][j];
+        });
+    }
 
-        function verifierGagnant() {
-            const combinaisonsGagnantes = [
-                [[0, 0], [0, 1], [0, 2]],
-                [[1, 0], [1, 1], [1, 2]],
-                [[2, 0], [2, 1], [2, 2]],
-                [[0, 0], [1, 0], [2, 0]],
-                [[0, 1], [1, 1], [2, 1]],
-                [[0, 2], [1, 2], [2, 2]],
-                [[0, 0], [1, 1], [2, 2]],
-                [[0, 2], [1, 1], [2, 0]],
-            ];
-            return combinaisonsGagnantes.some(combinaison =>
-                combinaison.every(([i, j]) => grille[i][j] === joueurActuel)
-            );
-        }
+    function verifierGagnant() {
+        const combinaisonsGagnantes = [
+            [[0, 0], [0, 1], [0, 2]],
+            [[1, 0], [1, 1], [1, 2]],
+            [[2, 0], [2, 1], [2, 2]],
+            [[0, 0], [1, 0], [2, 0]],
+            [[0, 1], [1, 1], [2, 1]],
+            [[0, 2], [1, 2], [2, 2]],
+            [[0, 0], [1, 1], [2, 2]],
+            [[0, 2], [1, 1], [2, 0]],
+        ];
+        return combinaisonsGagnantes.some(combinaison =>
+            combinaison.every(([i, j]) => grille[i][j] === joueurActuel)
+        );
+    }
 
-        function enregistrerPartie(joueur1, joueur2, gagnant) {
-            fetch('http://localhost:3000/partie', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ joueur1, joueur2, gagnant }),
-            })
-            .then(response => response.text())
-            .then(data => console.log(data))
-            .catch((error) => console.error('Erreur:', error));
-        }
+    function enregistrerPartie(joueur1, joueur2, gagnant) {
+        fetch('http://localhost:3000/partie', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ joueur1, joueur2, gagnant }),
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch((error) => console.error('Erreur:', error));
+    }
 
-        function reinitialiser() {
-            grille = Array(3).fill(null).map(() => Array(3).fill(null));
-            joueurActuel = 'X';
-            mettreAJourGrille();
-            messageElement.textContent = '';
-        }
+    function reinitialiser() {
+        grille = Array(3).fill(null).map(() => Array(3).fill(null));
+        joueurActuel = 'X';
+        mettreAJourGrille();
+        messageElement.textContent = '';
+    }
 
-        creerGrille();
-    </script>
-    <footer>
-        <p>Tout droit reserver &copy 2025. Voici les devs de ce Jeu</p>
-       <a href="footer.html">Les createurs de ce jeu</a>
-            
-        
-    </footer>
+    creerGrille();
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
-
-
